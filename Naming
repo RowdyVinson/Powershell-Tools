@@ -1,0 +1,27 @@
+<#
+Up top are feeder files. 2 column csv files
+#>
+$ServerEnv = Import-Csv -Path D:\Rowdy\Desktop\ServerEnv.csv -Header "Environment","Truncated Name" -Delimiter ","
+#$UserEnv = Import-Csv -Path D:\Rowdy\Desktop\ServerEnv.csv -Header "Environment","Truncated Name" -Delimiter ","
+$ServerType = Import-Csv -Path D:\Rowdy\Desktop\ServerType.csv -Header "Server Type","Truncated Name" -Delimiter ","
+$AppGroups = Import-Csv -Path D:\Rowdy\Desktop\AppGroups.csv -Header "App Group Name","Truncated Name" -Delimiter ","
+
+#Lists the available Environments then prompts for selection
+$ServerEnv.Environment
+$Env = Read-Host -Prompt "Enter Environment"
+
+#Lists the available Types then prompts for selection
+$ServerType."Server Type"
+$Type = Read-Host -Prompt "Enter Server Type"
+
+#Lists the available App Groups then prompts for selection
+$AppGroups."App Group Name"
+$AppGroup = Read-Host -Prompt "Enter App Group"
+
+#Pulls values for each entry to assemble name
+$a = $ServerEnv | Where-Object -Property Environment -EQ $Env | Select-Object -Property "Truncated Name"
+$b = $ServerType | Where-Object -Property "Server Type" -EQ $Type | Select-Object -Property "Truncated Name"
+$c = $AppGroups | Where-Object -Property "App Group Name" -EQ $AppGroup | Select-Object -Property "Truncated Name"
+
+#Prints out Server Name
+$a."Truncated Name" + "-" + $b."Truncated Name" + "-" + $c."Truncated Name"
