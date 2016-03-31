@@ -1,0 +1,44 @@
+#####
+# Group members email report. Change $Groupname to a proper AD group identity. 
+# Rowdy Vinson 
+# 3/31/2016
+#####
+#####
+# Variables for report config
+#####
+$groupname = "Domain Admins"
+$to = "DL-IT-Alert-Internal-Audit@DOMAIN.com"
+$smtpserver = "smtpserver.DOMAIN.com"
+$from = "AD-AUDIT-SCRIPT@DOMAIN.com"
+
+#####
+# Add needed modules
+#####
+Import-Module ActiveDirectory -ErrorAction SilentlyContinue
+
+#####
+# Makes the Subject line of the email
+#####
+$emaildate = Get-Date
+$subject = "Report on "+$Groupname+" Group Members as of "+ $emaildate 
+
+#####
+# $Groupmembers gets the list as a table that we can get a count for in $Count. $MemberString reformats the table to a string so we can match it up with the count output and inject it into $body. 
+#####
+$GroupMembers = Get-ADGroupMember -Identity $Groupname | Select Name
+$MemberString = $GroupMembers | out-string
+$Count = "Member Count: " + $GroupMembers.Count 
+# Tacks $count string onto $MemberString string 
+$MemberString += $Count
+# $Body uses a here string to avoind issues with line breaks caused by tacking $Count on to the end of $MemberString. 
+$body = @"
+$MemberString 
+"@
+
+#####
+# Creates a new message and sends email. 
+#####
+$mailer = New-Object Net.Mail.SMTPClient($smtpserver) 
+$msg = New-Object Net.Mail.MailMessage($from,$to,$subject,$body)
+$msg.IsBodyHTML = $false
+$mailer.send($msg)
